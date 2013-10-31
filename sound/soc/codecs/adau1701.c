@@ -168,7 +168,6 @@ static bool adau1701_volatile_reg(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
 	case ADAU1701_DACSET:
-	case ADAU1701_DSPCTRL:
 		return true;
 	default:
 		return false;
@@ -258,7 +257,7 @@ static int adau1701_safeload(struct sigmadsp *sigmadsp, unsigned int addr,
 	uint8_t buf[10];
 	int ret;
 
-	ret = regmap_read(adau1701->regmap, ADAU1701_DSPCTRL, &val);
+	ret = adau1701_reg_read(client, ADAU1701_DSPCTRL, &val);
 	if (ret)
 		return ret;
 

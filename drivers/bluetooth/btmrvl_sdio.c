@@ -198,9 +198,6 @@ static const struct sdio_device_id btmrvl_sdio_ids[] = {
 	/* Marvell SD8787 Bluetooth device */
 	{ SDIO_DEVICE(SDIO_VENDOR_ID_MARVELL, 0x911A),
 			.driver_data = (unsigned long) &btmrvl_sdio_sd8787 },
-	/* Marvell SD8787 Bluetooth AMP device */
-	{ SDIO_DEVICE(SDIO_VENDOR_ID_MARVELL, 0x911B),
-			.driver_data = (unsigned long) &btmrvl_sdio_sd8787 },
 	/* Marvell SD8797 Bluetooth device */
 	{ SDIO_DEVICE(SDIO_VENDOR_ID_MARVELL, 0x912A),
 			.driver_data = (unsigned long) &btmrvl_sdio_sd8797 },
@@ -1385,7 +1382,7 @@ static int btmrvl_sdio_probe(struct sdio_func *func,
 	struct btmrvl_private *priv = NULL;
 	struct btmrvl_sdio_card *card = NULL;
 
-	BT_INFO("vendor=0x%x, device=0x%x, class=%d, fn=%d",
+	BT_INFO("Vendor=0x%x, Device=0x%x, Class=%d, Fn=%d",
 			id->vendor, id->device, id->class, func->num);
 
 	card = devm_kzalloc(&func->dev, sizeof(*card), GFP_KERNEL);

@@ -165,7 +165,7 @@ static const struct snd_kcontrol_new pcm3060_snd_controls[] = {
 		SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_88200 |\
 		SNDRV_PCM_RATE_96000)
 
-#define PCM3060_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
+#define PCM3060_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S32_LE)
 
 struct snd_soc_dai_driver pcm3060_dai = {
 	.name = "pcm3060-hifi",

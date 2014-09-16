@@ -53,6 +53,10 @@ static unsigned timer_margin;
 module_param(timer_margin, uint, 0);
 MODULE_PARM_DESC(timer_margin, "initial watchdog timeout (in seconds)");
 
+static bool early_disable = true;
+module_param(early_disable, bool, 0);
+MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=1)");
+
 struct omap_wdt_dev {
 	void __iomem    *base;          /* physical */
 	struct device   *dev;
@@ -128,9 +132,11 @@ static int omap_wdt_start(struct watchdog_device *wdog)
 
 	mutex_lock(&wdev->lock);
 
-	wdev->omap_wdt_users = true;
-
-	pm_runtime_get_sync(wdev->dev);
+	/* The watchdog was disabled in probe function */
+	if (early_disable) {
+		wdev->omap_wdt_users = true;
+		pm_runtime_get_sync(wdev->dev);
+	}
 
 	/* initialize prescaler */
 	while (readl_relaxed(base + OMAP_WATCHDOG_WPS) & 0x01)
@@ -158,6 +164,7 @@ static int omap_wdt_stop(struct watchdog_device *wdog)
 	pm_runtime_put_sync(wdev->dev);
 	wdev->omap_wdt_users = false;
 	mutex_unlock(&wdev->lock);
+	early_disable = true;
 	return 0;
 }
 
@@ -218,7 +225,7 @@ static int omap_wdt_probe(struct platform_device *pdev)
 	if (!wdev)
 		return -ENOMEM;
 
-	wdev->omap_wdt_users	= false;
+	wdev->omap_wdt_users	= (early_disable) ? false : true;
 	wdev->dev		= &pdev->dev;
 	wdev->wdt_trgr_pattern	= 0x1234;
 	mutex_init(&wdev->lock);
@@ -255,7 +262,14 @@ static int omap_wdt_probe(struct platform_device *pdev)
 	omap_wdt->bootstatus = (rs & (1 << OMAP_MPU_WD_RST_SRC_ID_SHIFT)) ?
 				WDIOF_CARDRESET : 0;
 
-	omap_wdt_disable(wdev);
+	if (early_disable) {
+		omap_wdt_disable(wdev);
+	} else {
+		pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+			omap_wdt->timeout);
+		omap_wdt_set_timeout(omap_wdt, omap_wdt->timeout);
+		omap_wdt_ping(omap_wdt);
+	}
 
 	ret = watchdog_register_device(omap_wdt);
 	if (ret) {
@@ -267,7 +281,8 @@ static int omap_wdt_probe(struct platform_device *pdev)
 		readl_relaxed(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
 		omap_wdt->timeout);
 
-	pm_runtime_put_sync(wdev->dev);
+	if (early_disable)
+		pm_runtime_put_sync(wdev->dev);
 
 	return 0;
 }

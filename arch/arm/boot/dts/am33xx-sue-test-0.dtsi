@@ -1,0 +1,189 @@
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/ {
+	model = "StreamUnlimited Board (AM33xx)";
+	compatible = "ti,am335x-sue-test", "ti,am33xx";
+
+	chosen {
+		bootargs = "console=ttyO0,115200n8";
+	};
+
+	am3358_pinmux: pinmux@44e10800 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&clk32kHz_out &en_3v3_gpio &gpio_out_pins &gpio_test_pins>;
+
+		mmc2_pins: pinmux_mmc2_pins {
+			pinctrl-single,pins = <
+				0x20 0x3a	/* GPMC_AD8  -> MMC1_DAT0 */
+				0x24 0x3a	/* GMPC_AD9  -> MMC1_DAT1 */
+				0x28 0x3a	/* GPMC_AD10 -> MMC1_DAT2 */
+				0x2c 0x3a	/* GPMC_AD11 -> MMC1_DAT3 */
+				0x80 0x3a	/* GPMC_CSN1 -> MMC1_CLK  */
+				0x84 0x3a	/* GPMC_CSN2 -> MMC1_CMD  */
+				0x30 0x3f	/* GPIO1_12  -> write protect */
+				0x34 0x3f	/* GPI01_13  -> Card detect */
+			>;
+		};
+
+		en_3v3_gpio: en_3v3_gpio_pins {
+			pinctrl-single,pins = <
+				0x3c  0x3f	/* gpmc_ad15 -> gpio1_15 (LCD_DATA_16) EN_3V3-out*/
+			>;
+		};
+
+		gpio_out_pins: pinmux_gpio_out_pins {
+			pinctrl-single,pins = <
+				0x38 0x07	/* gpmc_ad14 -> gpio1_14 (LCD_DATA_17) -out*/
+				0x88 0x07	/* conf_gpmc_csn3 -> gpio2_0 (WIFI_POWER_DN) -out */
+			>;
+		};
+
+		gpio_test_pins: pinmux_gpio_test_pins {
+			pinctrl-single,pins = <
+				0x134 0x27	/* conf_mii1_rxd3 -> gpio2_18 */
+				0x180 0x27	/* conf_uart1_rxd -> gpio0_14 */
+				0x184 0x27	/* conf_uart1_txd -> gpio0_15 */
+				0x160 0x27 	/* conf_spi0_cs1 -> gpio0_6 */
+				0x130 0x27	/* conf_mii1_rxclk -> gpio3_10 */
+				0x150 0x27	/* conf_spi0_sclk -> gpio0_2 */
+				0x16C 0x27	/* conf_uart0_rtsn -> gpio1_9 */
+				0x168 0x27	/* conf_uart0_ctsn -> gpio1_8 */
+				0x198 0x27	/* conf_mcasp0_axr0 -> gpio3_16 */
+				0x190 0x27	/* conf_mcasp0_aclkx -> gpio3_14 */
+				0x078 0x27	/* conf_gpmc_be1n  -> gpio2_18 */
+				0x19C 0x27	/* conf_mcasp0_ahclkr -> gpio3_17 */
+				0x0E0 0x27	/* conf_lcd_vsync -> gpio2_22 */
+				0x0E8 0x27	/* conf_lcd_pclk -> gpio2_24 */
+				0x0A4 0x27	/* conf_lcd_data1 -> gpio2_7 */
+				0x0A8 0x27	/* conf_lcd_data2 -> gpio2_8 */
+				0x0B4 0x27	/* conf_lcd_data5 -> gpio2_11 */
+				0x0B8 0x27	/* conf_lcd_data6  -> gpio2_12 */
+				0x0C4 0x27	/* conf_lcd_data9 -> gpio2_15 */
+				0x0C8 0x27	/* conf_lcd_data10 -> gpio2_16 */
+				0x0D4 0x27	/* conf_lcd_data13 -> gpio0_9 */
+				0x0D8 0x27	/* conf_lcd_data14 -> gpio0_10 */
+				0x118 0x07	/* conf_mii1_rxdv -> gpio3_4 */
+				0x138 0x07	/* conf_mii1_rxd2 -> gpio2_19 */
+				0x178 0x07	/* conf_uart1_ctsn -> gpio0_12 */
+				0x17C 0x07	/* conf_uart1_rtsn -> gpio0_13 */
+				0x164 0x07	/* conf_ecap0_in_pwm0_out -> gpio0_7 */
+				0x154 0x07	/* conf_spi0_d0 -> gpio0_3 */
+				0x158 0x07	/* conf_spi0_d1 -> gpio0_4 */
+				0x15C 0x07	/* conf_spi0_cs0 -> gpio0_5 */
+				0x108 0x07	/* conf_mii1_col -> gpio3_0 */
+				0x194 0x07	/* conf_mcasp0_fsx -> gpio3_15 */
+				0x1A4 0x07	/* conf_mcasp0_fsr -> gpio3_19 */
+				0x1A8 0x07	/* conf_mcasp0_axr1 -> gpio3_20 */
+				0x0EC 0x07	/* conf_lcd_ac_bias_en -> gpio2_25 */
+				0x0E4 0x07	/* conf_lcd_hsync -> gpio2_23 */
+				0x08C 0x07	/* conf_gpmc_clk -> gpio2_1 */
+				0x0A0 0x07	/* conf_lcd_data0 -> gpio2_6 */
+				0x0AC 0x07	/* conf_lcd_data3 -> gpio2_9 */
+				0x0B0 0x07	/* conf_lcd_data4 -> gpio2_10 */
+				0x0BC 0x07	/* conf_lcd_data7 -> gpio2_13 */
+				0x0C0 0x07	/* conf_lcd_data8 -> gpio2_14 */
+				0x0CC 0x07	/* conf_lcd_data11 -> gpio2_17 */
+				0x0D0 0x07	/* conf_lcd_data12 -> gpio0_8 */
+			>;
+		};
+	};
+
+	ocp {
+		uart1: serial@44e09000 {
+			status = "okay";
+		};
+
+		i2c@44e0b000 {
+			status = "okay";
+		};
+
+		i2c@4802a000 {
+			status = "okay";
+		};
+
+		mmc@481d8000 {
+			bus-width = <4>;
+			cd-gpios = <&gpio1 13 0>;
+			wp-gpios = <&gpio1 12 0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc2_pins>;
+			max-frequency = <30000000>;
+			status = "okay";
+		};
+
+		usb@47400000 {
+			status = "okay";
+			port0-mode = <1>;
+			port1-mode = <1>;
+		};
+
+	};
+
+
+	rc: gpio_ir_recv {
+		compatible = "gpio-ir-receiver";
+		gpios = <&gpio1 31 1>;
+		linux,rc-map-name = "rc-philips";
+	};
+};
+
+&tscadc {
+	status = "okay";
+	adc {
+		ti,adc-channels = <0 1 2 3 4 5 6 7>;
+	};
+};
+
+&si5351a {
+	/*
+	 * overwrite clkout0 configuration with:
+	 * - 8mA output drive strength
+	 * - pll0 as clock source of multisynth0
+	 * - multisynth0 as clock source of output divider
+	 * - multisynth0 can change pll0
+	 */
+	clkout0 {
+		reg = <0>;
+		silabs,drive-strength = <8>;
+		silabs,multisynth-source = <0>;
+		silabs,clock-source = <0>;
+		silabs,pll-master;
+	};
+
+	/*
+	 *  master clock for aux-in codec i2s
+	 * overwrite clkout2 configuration with:
+	 * - 8mA output drive strength
+	 * - pll0 as clock source of multisynth0
+	 * - multisynth0 as clock source of output divider
+	 * - multisynth0 can change pll0
+	 */
+
+	clkout2 {
+		reg = <2>;
+		silabs,drive-strength = <8>;
+		silabs,multisynth-source = <0>;
+		silabs,clock-source = <0>;
+		silabs,pll-master;
+	};
+};
+
+&cpsw_emac0 {
+	phy_id = <&davinci_mdio 4>;
+};
+
+&mac {
+	slaves = <2>;
+
+	cpsw_emac1: slave@1 {
+		slave_reg_ofs = <0x308>;
+		sliver_reg_ofs = <0xdc0>;
+		/* Filled in by U-Boot */
+		mac-address = [ 00 00 00 00 00 00 ];
+		phy_id = <&davinci_mdio 0>;
+	};
+};

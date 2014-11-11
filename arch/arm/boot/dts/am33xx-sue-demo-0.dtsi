@@ -1,0 +1,342 @@
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/ {
+	model = "StreamUnlimited Board (AM33xx)";
+	compatible = "ti,am335x-sue-demo", "ti,am33xx";
+
+	chosen {
+		bootargs = "console=ttyO0,115200n8";
+	};
+
+	am3358_pinmux: pinmux@44e10800 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&clk32kHz_out &en_3v3_gpio &gpio_out_pins &gpio_phy_reset_pins>;
+
+		en_3v3_gpio: en_3v3_gpio_pins {
+				pinctrl-single,pins = <
+				0x3c  0x3f	/* gpmc_ad15 -> gpio1_15 (LCD_DATA_16) EN_3V3-out*/
+			>;
+		};
+
+		spi0_pins: pinmux_spi0_pins {
+			pinctrl-single,pins = <
+				0x150 0x28	/* SPI0_CLK */
+				0x154 0x38	/* SPI0_D0  */
+				0x158 0x28	/* SPI0_D1  */
+				0x15c 0x38	/* SPI0_CS0 */
+			>;
+		};
+
+		i2c3_pins: pinmux_i2c3_pins {
+			pinctrl-single,pins = <
+				0x178 0x23	/* I2C2_SDA */
+				0x17c 0x23	/* I2C2_SCL */
+			>;
+		};
+
+		gpio_key_pins: pinmux_gpio_key_pins {
+			pinctrl-single,pins = <
+				0x164 0x3f	/* gpio0_7 */
+				0x168 0x3f	/* gpio1_8 */
+				0x16C 0x3f	/* gpio1_9 */
+				0x84  0x2f	/* gpio1_31 */
+			>;
+		};
+
+		gpio_out_pins: pinmux_gpio_out_pins {
+			pinctrl-single,pins = <
+				0x30 0x07	/* gpmc_ad12 -> gpio1_12 (LCD_DATA_19) -out*/
+				0x34 0x07	/* gpmc_ad13 -> gpio1_13 (LCD_DATA_18) -out*/
+				0x38 0x07	/* gpmc_ad14 -> gpio1_14 (LCD_DATA_17) -out*/
+				0x88 0x07	/* conf_gpmc_csn3 -> gpio2_0 (WIFI_POWER_DN) -out */
+			>;
+		};
+
+		led_pins: pinmux_led_pins {
+			pinctrl-single,pins = <
+				0x80 0x7	/* GPIO1_30 */
+			>;
+		};
+
+		audio_pins: pinmux_audio_pins {
+			pinctrl-single,pins = < /*  pin-name     -> function      (S800 name) */
+				0x1ac 0x20	/* MCASP0_AHCLKX -> MCASP0_AHCLKX (I2S_MCLK_OUT)- in */
+				0x190 0x00	/* MCASP0_ACLKX -> MCASP0_ACLKX  (I2S_BCLK_OUT) - out */
+				0x194 0x00	/* MCASP0_FSX -> MCASP0_FSX 	 (I2S_WCLK_OUT) - out */
+				0x198 0x00	/* MCASP0_AXR0 -> MCASP0_AXR0    (I2S_DATA_OUT) - out */
+				0x1a8 0x20	/* MCASP0_AXR1 -> MCASP0_AXR1    (I2S_DATA_IN)  - in  */
+				0x1a0 0x23	/* MCASP0_ACLKR -> MCASP1_ACLKX  (internall SPDIF MCLK_IN)  - in  */
+				0x1a4 0x00	/* MCASP0_FSR   -> MCASP0_FSR    (I2S_WCLK_IN)  -out */
+				0x19c 0x20	/* MCASP0_AHCLKR -> MCASP0_AHCLKR (I2S_MCLK_IN  -in */
+				0x78  0x06	/* GPMC_BE1N ->  MCASP0_ACLKR    (I2S_BCLK_IN)   - out */
+				0x108 0x04	/* GMII1_COL -> MCASP1_AXR2      (SPDIF_OUT)     - out */
+			>;
+		};
+
+		lcdc_pins: pinmux_lcd_pins {
+			pinctrl-single,pins = < /*  pin-name     -> function      (S800 name) */
+				0xec  0x00		/* lcd_ac_bias_en -> _lcd_ac_bias_en (LCD_EN)- out */
+				0xe4  0x00 		/* lcd_hsync -> lcd_hsync (LCD_HSYNC) -out */
+				0xe0  0x00 		/* lcd_vsync -> lcd_vsync (LCD_VSYNC) -out */
+				0xe8  0x00 		/* lcd_pclk -> lcd_pclk (LCD_PCLK) -out */
+				0xdc  0x00 		/* lcd_data15 -> lcd_data15 (LCD_DATA15) -out */
+				0xd8  0x00 		/* lcd_data14 -> lcd_data14 (LCD_DATA14) -out */
+				0xd4  0x00 		/* lcd_data13 -> lcd_data13 (LCD_DATA13) -out */
+				0xd0  0x00 		/* lcd_data12 -> lcd_data12 (LCD_DATA12) -out */
+				0xcc  0x00 		/* lcd_data11 -> lcd_data11 (LCD_DATA11) -out */
+				0xc8  0x00 		/* lcd_data10 -> lcd_data10 (LCD_DATA10) -out */
+				0xc4  0x00 		/* lcd_data9 -> lcd_data9 (LCD_DATA9) -out */
+				0xc0  0x00 		/* lcd_data8 -> lcd_data8 (LCD_DATA8) -out */
+				0xbc  0x00 		/* lcd_data7 -> lcd_data7 (LCD_DATA7) -out */
+				0xb8  0x00 		/* lcd_data6 -> lcd_data6 (LCD_DATA6) -out */
+				0xb4  0x00 		/* lcd_data5 -> lcd_data5 (LCD_DATA5) -out */
+				0xb0  0x00 		/* lcd_data4 -> lcd_data4 (LCD_DATA4) -out */
+				0xac  0x00 		/* lcd_data3 -> lcd_data3 (LCD_DATA3) -out */
+				0xa8  0x00 		/* lcd_data2 -> lcd_data2 (LCD_DATA2) -out */
+				0xa4  0x00 		/* lcd_data1 -> lcd_data1 (LCD_DATA1) -out */
+				0xa0  0x00 		/* lcd_data0 -> lcd_data0 (LCD_DATA0) -out */
+			>;
+		};
+	};
+
+	ocp {
+		uart1: serial@44e09000 {
+			status = "okay";
+		};
+
+		i2c@44e0b000 {
+			status = "okay";
+		};
+
+		i2c@4802a000 {
+			status = "okay";
+		};
+
+		i2c@4819c000 {
+			status = "okay";
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c3_pins>;
+			clock-frequency = <400000>;
+
+			pcm3060: pcm3060@47 {
+				compatible = "ti,pcm3060";
+				reg = <0x47>;
+				reset-gpio = <&gpio1 14 0>;
+//				cirrus,amutec-eq-bmutec;
+				vd-supply = <&vcc_3v3>;
+			};
+		};
+
+
+//		spi0: spi@48030000 {
+//			status = "okay";
+//			ti,pindir-d0-in-d1-out;
+//			pinctrl-names = "default";
+//			pinctrl-0 = <&spi0_pins>;
+//
+//			ak4104: ak4104@0 {
+//				compatible = "asahi-kasei,ak4104";
+//				reg = <0>; /* CS0 */
+//				spi-max-frequency = <500000>;
+//				reset-gpio = <&gpio1 14 0>;
+//			};
+//		};
+
+		leds {
+			compatible = "gpio-leds";
+			pinctrl-names = "default";
+			pinctrl-0 = <&led_pins>;
+
+			Debug_LED0 {
+				label = "Debug_LED0";
+				gpios = <&gpio1 30 0>;
+				default-state = "on";
+				linux,default-trigger = "none";
+			};
+		};
+
+		gpio-keys {
+			compatible = "gpio-keys";
+			pinctrl-names = "default";
+			pinctrl-0 = <&gpio_key_pins>;
+
+			Wakeup {
+				label = "Wakeup";
+				gpios = <&gpio0 7 1>;
+				linux,code = <164>; /* KEY_PLAYPAUSE */
+				gpio-key,wakeup;
+			};
+
+			wps {
+				label = "wps";
+				gpios = <&gpio1 9 1>;
+				linux,code = <0x211>; /* KEY_WPS_BUTTON */
+				gpio-key,wakeup;
+			};
+		};
+
+		usb@47400000 {
+			status = "okay";
+			port0-mode = <1>;
+			port1-mode = <1>;
+		};
+
+		mcasp@48038000 {
+			status = "okay";
+			op-mode = <0>;          /* MCASP_IIS_MODE */
+			tdm-slots = <2>; 	/*I2S = 2 channles, other: TDM */
+			num-serializer = <4>; 	/*num of serializers*/
+			serial-dir = <  1 2 0 0 >; /* 0: INACTIVE, 1: TX, 2: RX */
+			tx-num-evt = <2>; 	/*tx FIFO buffer lenght */
+			rx-num-evt = <1>; 	/*rx FIFO buffer lenght */
+			tx-rx-clk-separate;
+		};
+
+		mcasp@4803C000 {
+			status = "okay";
+			op-mode = <1>;          /* MCASP_DIT_MODE */
+			tdm-slots = <2>;
+			num-serializer = <4>;
+			serial-dir = <  0 0 1 0 >;/* 0: INACTIVE, 1: TX, 2: RX */
+			tx-num-evt = <1>;
+			rx-num-evt = <0>;
+		};
+	};
+
+	audio {
+		compatible = "sue,am33xx-generic-audio";
+		pinctrl-names = "default";
+		pinctrl-0 = <&audio_pins>;
+		sue,card-name = "Stream Audio";
+		sue,invert-wclk;
+		sue,early-mclk; /* enables MCLK before pcm3060 initialization */
+		clocks = <&si5351a 0>, <&si5351a 2>; /* playback clk, receive clk */
+
+		link@0 {
+			sue,name = "analog";
+			sue,stream-name = "I2S";
+
+			sue,platform = <&mcasp0>;
+			sue,cpu-dai-name = "48038000.mcasp";
+			sue,codec = <&pcm3060>;
+			sue,codec-dai-name = "pcm3060-hifi";
+			sue,mute-amp-pin = <&gpio1 13 0>;
+		};
+/*
+		link@1 {
+			sue,name = "digital";
+			sue,stream-name = "I2S";
+
+			sue,platform = <&mcasp0>;
+			sue,cpu-dai-name = "48038000.mcasp";
+
+			sue,codec = <&ak4104>;
+			sue,codec-dai-name = "ak4104-hifi";
+		};
+*/	};
+
+	vcc_3v3: reg_vcc_3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio1 15 0>;
+		//regulator-always-on;
+		enable-active-high;
+		regulator-boot-on;
+	};
+
+	rc: gpio_ir_recv {
+		compatible = "gpio-ir-receiver";
+		gpios = <&gpio1 31 1>;
+		linux,rc-map-name = "rc-philips";
+	};
+
+	fb: fb@4830e000 {
+		compatible = "ti,am33xx-tilcdc";
+		reg = <0x4830e000 0x1000>;
+		interrupt-parent = <&intc>;
+		interrupts = <36>;
+		ti,hwmods = "lcdc";
+	};
+
+	lcd_panel {
+		compatible = "ti,tilcdc,panel";
+		pinctrl-names = "default";
+		pinctrl-0 = <&lcdc_pins>;
+		ti,hwmods = "lcdc";
+		panel-info {
+			ac-bias           = <255>;
+			ac-bias-intrpt    = <0>;
+			dma-burst-sz      = <16>;
+			bpp               = <16>;
+			fdd               = <0x80>;
+			sync-edge         = <0>;
+			sync-ctrl         = <1>;
+			raster-order      = <0>;
+			fifo-th           = <0>;
+		};
+
+		display-timings {
+			native-mode = <&timing_0>;
+			timing_0: 800x480px {
+				/* 800x480 */
+				clock-frequency = <50000000>;
+				hactive = <800>;
+				vactive = <480>;
+				hfront-porch = <0>;
+				hback-porch = <87>;
+				hsync-len = <0>;
+				vback-porch = <32>;
+				vfront-porch = <0>;
+				vsync-len = <0>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				/*pixelclk-active = <1>;*/
+				/*de-active = <1>;*/
+			};
+		};
+	};
+};
+
+&si5351a {
+	/*
+	 * overwrite clkout0 configuration with:
+	 * - 8mA output drive strength
+	 * - pll0 as clock source of multisynth0
+	 * - multisynth0 as clock source of output divider
+	 * - multisynth0 can change pll0
+	 */
+	clkout0 {
+		reg = <0>;
+		silabs,drive-strength = <8>;
+		silabs,multisynth-source = <0>;
+		silabs,clock-source = <0>;
+		silabs,pll-master;
+	};
+
+	/*
+	 *  master clock for aux-in codec i2s
+	 * overwrite clkout2 configuration with:
+	 * - 8mA output drive strength
+	 * - pll0 as clock source of multisynth0
+	 * - multisynth0 as clock source of output divider
+	 * - multisynth0 can change pll0
+	 */
+
+	clkout2 {
+		reg = <2>;
+		silabs,drive-strength = <8>;
+		silabs,multisynth-source = <0>;
+		silabs,clock-source = <0>;
+		silabs,pll-master;
+	};
+};
+
+&cpsw_emac0 {
+	phy_id = <&davinci_mdio 4>;
+};

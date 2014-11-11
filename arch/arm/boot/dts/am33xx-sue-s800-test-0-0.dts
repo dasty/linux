@@ -1,0 +1,4 @@
+/dts-v1/;
+
+/include/ "am33xx-sue-s800-0.dtsi"
+/include/ "am33xx-sue-test-0.dtsi"

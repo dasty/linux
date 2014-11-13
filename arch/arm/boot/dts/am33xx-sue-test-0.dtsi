@@ -93,7 +93,7 @@
 	};
 
 	ocp {
-		uart1: serial@44e09000 {
+		uart0: serial@44e09000 {
 			status = "okay";
 		};
 
@@ -179,7 +179,7 @@
 &mac {
 	slaves = <2>;
 
-	cpsw_emac1: slave@1 {
+	cpsw_emac2: slave@1 {
 		slave_reg_ofs = <0x308>;
 		sliver_reg_ofs = <0xdc0>;
 		/* Filled in by U-Boot */

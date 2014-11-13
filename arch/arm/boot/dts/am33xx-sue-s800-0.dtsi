@@ -6,7 +6,7 @@
  * published by the Free Software Foundation.
  */
 
-/include/ "am33xx.dtsi"
+#include "am33xx.dtsi"
 
 / {
 	compatible = "ti,am335x-raumfeld-connector", "ti,am33xx";
@@ -37,7 +37,7 @@
 				0x1e4 0x17 >;
 		 };
 
-		uart1_pins: pinmux_uart1_pins {
+		uart0_pins: pinmux_uart0_pins {
 			pinctrl-single,pins = <
 				0x170 0x38	/* UART0_RXD */
 				0x174 0x00	/* UART0_TXD */
@@ -219,9 +219,9 @@
 			};
 		};
 
-		uart1: serial@44e09000 {
+		uart0: serial@44e09000 {
 			pinctrl-names = "default";
-			pinctrl-0 = <&uart1_pins>;
+			pinctrl-0 = <&uart0_pins>;
 		};
 
 		mmc1: mmc@48060000 {
@@ -267,7 +267,7 @@
 	};
 };
 
-/include/ "tps65217.dtsi"
+#include "tps65217.dtsi"
 
 &tps {
 	regulators {

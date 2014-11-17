@@ -342,6 +342,10 @@
 	phy-mode = "rmii";
 };
 
+&phy_sel {
+	rmii-clock-ext;
+};
+
 &mac {
 	status = "okay";
 };

@@ -31,7 +31,7 @@
 			>;
 		};
 
-		i2c3_pins: pinmux_i2c3_pins {
+		i2c2_pins: pinmux_i2c2_pins {
 			pinctrl-single,pins = <
 				0x178 0x23	/* I2C2_SDA */
 				0x17c 0x23	/* I2C2_SCL */
@@ -108,18 +108,18 @@
 			status = "okay";
 		};
 
-		i2c@44e0b000 {
+		i2c0: i2c@44e0b000 {
 			status = "okay";
 		};
 
-		i2c@4802a000 {
+		i2c1: i2c@4802a000 {
 			status = "okay";
 		};
 
-		i2c@4819c000 {
+		i2c2: i2c@4819c000 {
 			status = "okay";
 			pinctrl-names = "default";
-			pinctrl-0 = <&i2c3_pins>;
+			pinctrl-0 = <&i2c2_pins>;
 			clock-frequency = <400000>;
 
 			pcm3060: pcm3060@47 {

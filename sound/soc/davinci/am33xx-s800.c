@@ -438,6 +438,13 @@ static int snd_soc_am33xx_s800_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, &priv->card);
 	snd_soc_card_set_drvdata(&priv->card, priv);
 
+	if (of_get_property(top_node, "sue,early-mclk", NULL)) {
+		dev_info(dev, "enabling early MCLK\n");
+
+		priv->mclk_rate = 24576000;
+		am33xx_s800_set_mclk(priv);
+	}
+
 	ret = regulator_enable(priv->regulator);
 	if (ret < 0) {
 		dev_err(dev, "error enabling regulator\n");

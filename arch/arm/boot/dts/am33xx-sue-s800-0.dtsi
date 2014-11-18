@@ -35,7 +35,7 @@
 		gpio_phy_reset_pins: pinmux_gpio_phy_reset_pins {
 			pinctrl-single,pins = <
 				0x1e4 0x17 >;
-		 };
+		};
 
 		uart0_pins: pinmux_uart0_pins {
 			pinctrl-single,pins = <

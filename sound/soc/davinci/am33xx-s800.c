@@ -458,8 +458,10 @@ static int snd_soc_am33xx_s800_probe(struct platform_device *pdev)
 
 		/* iterate over child nodes */
 		priv->card.num_links = of_get_child_count(node);
-		if (priv->card.num_links == 0)
+		if (priv->card.num_links == 0) {
+			dev_err(dev, "Faild to find any links in device tree\n");
 			return -EINVAL;
+		}
 
 		priv->card.dai_link =
 			devm_kzalloc(dev, priv->card.num_links * sizeof(*link),
@@ -501,6 +503,9 @@ static int snd_soc_am33xx_s800_probe(struct platform_device *pdev)
 			link->dai_fmt = dai_fmt | dai_fmt_link;
 			link++;
 		}
+	} else {
+		dev_err(dev, "Faild to find links node in device tree\n");
+		return -EINVAL;
 	}
 
 	platform_set_drvdata(pdev, &priv->card);

@@ -216,28 +216,31 @@
 		sue,early-mclk; /* enables MCLK before pcm3060 initialization */
 		clocks = <&si5351a 0>, <&si5351a 2>; /* playback clk, receive clk */
 
-		link@0 {
-			sue,name = "analog";
-			sue,stream-name = "I2S";
+		links {
+			link@0 {
+				sue,name = "analog";
+				sue,stream-name = "I2S";
 
-			sue,platform = <&mcasp0>;
-			sue,cpu-dai-name = "48038000.mcasp";
-			sue,codec = <&pcm3060>;
-			sue,codec-dai-name = "pcm3060-hifi";
-			sue,mute-amp-pin = <&gpio1 13 0>;
-		};
+				sue,platform = <&mcasp0>;
+				sue,cpu-dai-name = "48038000.mcasp";
+				sue,codec = <&pcm3060>;
+				sue,codec-dai-name = "pcm3060-hifi";
+				sue,mute-amp-pin = <&gpio1 13 0>;
+			};
 /*
-		link@1 {
-			sue,name = "digital";
-			sue,stream-name = "I2S";
+			link@1 {
+				sue,name = "digital";
+				sue,stream-name = "I2S";
 
-			sue,platform = <&mcasp0>;
-			sue,cpu-dai-name = "48038000.mcasp";
+				sue,platform = <&mcasp0>;
+				sue,cpu-dai-name = "48038000.mcasp";
 
-			sue,codec = <&ak4104>;
-			sue,codec-dai-name = "ak4104-hifi";
+				sue,codec = <&ak4104>;
+				sue,codec-dai-name = "ak4104-hifi";
+			};
+*/
 		};
-*/	};
+	};
 
 	vcc_3v3: reg_vcc_3v3 {
 		compatible = "regulator-fixed";

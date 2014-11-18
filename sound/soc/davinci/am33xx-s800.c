@@ -517,6 +517,14 @@ static int snd_soc_am33xx_s800_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+	// TODO: Maybe disable MCLK again if snd_soc_register_card() fails?
+	if (of_get_property(top_node, "sue,early-mclk", NULL)) {
+		dev_info(dev, "enabling early MCLK\n");
+
+		priv->mclk_rate = MCLK_48k;
+		am33xx_s800_set_mclk(priv, SNDRV_PCM_STREAM_PLAYBACK);
+	}
+
 	ret = snd_soc_register_card(&priv->card);
 	if (ret < 0) {
 		dev_err(dev, "error registering card (%d)\n", ret);

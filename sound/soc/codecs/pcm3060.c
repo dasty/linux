@@ -39,16 +39,12 @@
 /* the attenuation registers take values from
  * -1 (0dB) to -127 (-63.0 dB) or others (muted) */
 #define PCM3060_REG_DAC_ATTEN_LEFT		65
-#define FIRSTREGISTER			PCM3060_REG_DAC_ATTEN_LEFT
 #define PCM3060_REG_DAC_ATTEN_RIGHT	66
 
 #define PCM3060_REG_DAC_CONTROL		68
 #	define PCM3060_OVR1		(1<<6)
 #	define PCM3060_MUTE_RIGHT	(1<<1)
 #	define PCM3060_MUTE_LEFT	(1<<0)
-
-#define	PCM3060_REG_DAC_OUTPHASE	68
-#	define PCM3060_OUTPHASE_INVERTED	(1<<2)
 
 #define PCM3060_REG_DAC_DEEMPH		69
 #	define PCM3060_DIGDEEMPH_SHIFT	5
@@ -59,8 +55,6 @@
 #	define PCM3060_ROLLOFF_FAST	(1<<7)
 //#	define PCM3060_DAC_FILTER_ALWAYS	(1<<2)
 
-//#define	PCM3060_REG_DAC_OUTPHASE		71
-//#	define PCM3060_OUTPHASE_INVERTED	(1<<0)
 
 //// ADC attenuation
 #define PCM3060_REG_ADC_ATTEN_LEFT 70
@@ -68,33 +62,28 @@
 
 #define PCM3060_REG_ADC_CONTROL		73
 
-#define PCM3060_NR_REGS  (PCM3060_REG_ADC_CONTROL - PCM3060_REG_CONTROL + 1)
+enum { bootstrap_mode = 0, i2c_mode } pcm3060_mode;
+
 /*
  * Default PCM3060 power-up configuration
  * Array contains non-existing in hw register at address 0
  * Array do not include Chip ID, as codec driver does not use
  * registers read operations at all
  */
-
-enum { bootstrap_mode = 0, i2c_mode } pcm3060_mode;
-
-static const u8 pcm3060_dflt_reg[PCM3060_NR_REGS] = {
-	PCM3060_MRST | PCM3060_SRST | PCM3060_ADPSV | PCM3060_DAPSV,
-	255,
-	255,
-	0, /* reg. 67 */
-	0,
-	0,
-	215,
-	215,
-	0,
-	0,
+static struct reg_default pcm3060_reg_defaults[] = {
+	{PCM3060_REG_CONTROL, PCM3060_MRST | PCM3060_SRST | PCM3060_ADPSV | PCM3060_DAPSV},
+	{PCM3060_REG_DAC_ATTEN_LEFT, 255},
+	{PCM3060_REG_DAC_ATTEN_RIGHT, 255},
+	{67, 0}, /* not sure if needed */
+	{PCM3060_REG_DAC_CONTROL, 0},
+	{PCM3060_REG_DAC_DEEMPH, 0},
+	{PCM3060_REG_ADC_ATTEN_LEFT, 215},
+	{PCM3060_REG_ADC_ATTEN_RIGHT, 215},
+	{72, 0}, /* not sure if needed */
+	{PCM3060_REG_ADC_CONTROL, 0},
 };
 
-
 struct pcm3060_private {
-	/* SND_SOC_I2C or SND_SOC_SPI */
-	enum snd_soc_control_type	bus_type;
 	/* GPIO driving Reset pin, if any */
 	int				gpio_nreset;
 	/* power supply */
@@ -255,18 +244,6 @@ static int pcm3060_probe(struct snd_soc_codec *codec)
 
 	pcm3060->gpio_nreset = gpio_nreset;
 
-	/*
-	 * In case of I2C, chip address specified in board data.
-	 * So cache IO operations use 8 bit codec register address.
-	 */
-
-	ret = snd_soc_codec_set_cache_io(codec, 8, 8,
-			SND_SOC_I2C);
-
-	if (ret) {
-		dev_err(codec->dev, "Failed to set cache I/O: %d\n", ret);
-		return ret;
-	}
 	dev_info(codec->dev, "going to add codec 3060\n");
 
 	if (pcm3060->mode != bootstrap_mode) {
@@ -298,10 +275,6 @@ static struct snd_soc_codec_driver soc_codec_dev_pcm3060 = {
 	.remove			= pcm3060_remove,
 	.suspend		= pcm3060_soc_suspend,
 	.resume			= pcm3060_soc_resume,
-	.reg_cache_default	= pcm3060_dflt_reg,
-	.reg_cache_size		= ARRAY_SIZE(pcm3060_dflt_reg),
-	.reg_word_size		= sizeof(pcm3060_dflt_reg[0]),
-	.compress_type		= SND_SOC_FLAT_COMPRESSION,
 };
 
 /* xxxxxxxxxxxxx*/
@@ -314,12 +287,26 @@ static const struct i2c_device_id pcm3060_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, pcm3060_i2c_id);
 
+static const struct regmap_config pcm3060_regmap = {
+	.reg_bits = 8,
+	.val_bits = 8,
+
+	.max_register = PCM3060_REG_ADC_CONTROL,
+	.reg_defaults = pcm3060_reg_defaults,
+	.num_reg_defaults = ARRAY_SIZE(pcm3060_reg_defaults),
+};
 
 static int pcm3060_i2c_probe(struct i2c_client *client,
 				      const struct i2c_device_id *id)
 {
 	int ret;
 	struct pcm3060_private *pcm3060;
+	struct regmap *regmap;
+
+	regmap = devm_regmap_init_i2c(client, &pcm3060_regmap);
+	if (IS_ERR(regmap))
+		return PTR_ERR(regmap);
+
 
 	pr_debug("probing pcm3060 i2c...\n");
 	pcm3060 = devm_kzalloc(&client->dev, sizeof(*pcm3060), GFP_KERNEL);
@@ -327,7 +314,6 @@ static int pcm3060_i2c_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	i2c_set_clientdata(client, pcm3060);
-	pcm3060->bus_type = SND_SOC_I2C;
 
 	ret = snd_soc_register_codec(&client->dev, &soc_codec_dev_pcm3060,
 		&pcm3060_dai, 1);

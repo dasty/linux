@@ -82,7 +82,7 @@ static const u8 pcm3060_dflt_reg[PCM3060_NR_REGS] = {
 	PCM3060_MRST | PCM3060_SRST | PCM3060_ADPSV | PCM3060_DAPSV,
 	255,
 	255,
-	0, //reg. 67
+	0, /* reg. 67 */
 	0,
 	0,
 	215,
@@ -100,7 +100,7 @@ struct pcm3060_private {
 	/* power supply */
 	struct regulator		*vd_supply;
 	int mclk;
-	uint8_t 			mode;
+	uint8_t				mode;
 };
 
 
@@ -126,8 +126,8 @@ static int pcm3060_digital_mute(struct snd_soc_dai *dai, int mute)
 		val_b = PCM3060_MUTE_LEFT;
 	}
 
-	ret = snd_soc_update_bits(codec, PCM3060_REG_DAC_CONTROL, 
-			PCM3060_MUTE_RIGHT | PCM3060_MUTE_LEFT, val_a | val_b );
+	ret = snd_soc_update_bits(codec, PCM3060_REG_DAC_CONTROL,
+			PCM3060_MUTE_RIGHT | PCM3060_MUTE_LEFT, val_a | val_b);
 	if (ret < 0)
 		return ret;
 
@@ -156,7 +156,9 @@ static const DECLARE_TLV_DB_SCALE(vol_DAC_tlv, -12750, 50, 1);
 
 static const struct snd_kcontrol_new pcm3060_snd_controls[] = {
 	SOC_DOUBLE_R_TLV("Master Playback Volume",
-			PCM3060_REG_DAC_ATTEN_LEFT,PCM3060_REG_DAC_ATTEN_RIGHT, 0, 255 , 0, vol_DAC_tlv),
+			PCM3060_REG_DAC_ATTEN_LEFT,
+			PCM3060_REG_DAC_ATTEN_RIGHT,
+			0, 255 , 0, vol_DAC_tlv),
 };
 
 #define PCM3060_RATES (SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_11025 |\
@@ -207,7 +209,7 @@ static int pcm3060_probe(struct snd_soc_codec *codec)
 	int gpio_nreset = -EINVAL;
 	int mode;
 
-	printk("probing pcm3060\n");
+	dev_info(codec->dev, "probing pcm3060\n");
 
 	pcm3060->vd_supply = devm_regulator_get(codec->dev, "vd");
 	if (IS_ERR(pcm3060->vd_supply)) {
@@ -226,8 +228,8 @@ static int pcm3060_probe(struct snd_soc_codec *codec)
 		gpio_nreset = of_get_named_gpio(codec->dev->of_node,
 						"reset-gpio", 0);
 
-		if(of_property_read_u32(codec->dev->of_node, "mode",
-			     &mode)>=0) {
+		if (of_property_read_u32(codec->dev->of_node, "mode",
+			     &mode) >= 0) {
 			pcm3060->mode = mode;
 		} else
 			pcm3060->mode = i2c_mode;
@@ -265,7 +267,7 @@ static int pcm3060_probe(struct snd_soc_codec *codec)
 		dev_err(codec->dev, "Failed to set cache I/O: %d\n", ret);
 		return ret;
 	}
-	printk("going to add codec 3060");
+	dev_info(codec->dev, "going to add codec 3060\n");
 
 	if (pcm3060->mode != bootstrap_mode) {
 		/* bring codec to active state */
@@ -318,18 +320,18 @@ static int pcm3060_i2c_probe(struct i2c_client *client,
 {
 	int ret;
 	struct pcm3060_private *pcm3060;
-	
-	printk("probing pcm3060 i2c...");
+
+	pr_debug("probing pcm3060 i2c...\n");
 	pcm3060 = devm_kzalloc(&client->dev, sizeof(*pcm3060), GFP_KERNEL);
 	if (!pcm3060)
 		return -ENOMEM;
 
 	i2c_set_clientdata(client, pcm3060);
 	pcm3060->bus_type = SND_SOC_I2C;
-	
+
 	ret = snd_soc_register_codec(&client->dev, &soc_codec_dev_pcm3060,
 		&pcm3060_dai, 1);
-	printk("registrered pcm3060 codec %d ...",ret);
+	pr_info("registrered pcm3060 codec %d ...\n", ret);
 	return ret;
 }
 
@@ -357,10 +359,10 @@ static struct i2c_driver pcm3060_i2c_driver = {
 static int __init pcm3060_modinit(void)
 {
 	int ret;
-	 printk("pcm3060_modinit");
+
+	pr_debug("pcm3060_modinit\n");
 #if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
-	 printk("pcm3060_modinit-1");
-	 ret = i2c_add_driver(&pcm3060_i2c_driver);
+	ret = i2c_add_driver(&pcm3060_i2c_driver);
 	if (ret) {
 		pr_err("Failed to register pcm3060 I2C driver: %d\n", ret);
 		return ret;

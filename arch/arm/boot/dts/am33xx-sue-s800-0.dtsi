@@ -84,24 +84,33 @@
 
 			nand@0,0 {
 				reg = <0 0 0>; /* CS0 */
+				gpmc,device-width = <1>;
 				nand-bus-width = <8>;
 				ti,nand-ecc-opt = "bch8";
 				elm_id = <&elm>;
 
-				gpmc,sync-clk = <0>;
-				gpmc,cs-on = <0>;
-				gpmc,cs-rd-off = <44>;
-				gpmc,cs-wr-off = <44>;
-				gpmc,adv-on = <6>;
-				gpmc,adv-rd-off = <34>;
-				gpmc,adv-wr-off = <44>;
-				gpmc,we-off = <40>;
-				gpmc,oe-off = <54>;
-				gpmc,access = <64>;
-				gpmc,rd-cycle = <82>;
-				gpmc,wr-cycle = <82>;
-				gpmc,wr-access = <40>;
-				gpmc,wr-data-mux-bus = <0>;
+				gpmc,sync-clk-ps = <0>;
+				gpmc,cs-on-ns = <0>;
+				gpmc,cs-rd-off-ns = <44>;
+				gpmc,cs-wr-off-ns = <44>;
+				gpmc,adv-on-ns = <6>;
+				gpmc,adv-rd-off-ns = <34>;
+				gpmc,adv-wr-off-ns = <44>;
+				gpmc,we-on-ns = <6>;
+				gpmc,we-off-ns = <40>;
+				gpmc,oe-on-ns = <6>;
+				gpmc,oe-off-ns = <54>;
+				gpmc,page-burst-access-ns = <0>;
+				gpmc,access-ns = <64>;
+				gpmc,rd-cycle-ns = <82>;
+				gpmc,wr-cycle-ns = <82>;
+				gpmc,cycle2cycle-delay-ns = <0>;
+				gpmc,bus-turnaround-ns = <0>;
+				gpmc,wait-monitoring-ns = <0>;
+				gpmc,clk-activation-ns = <0>;
+				gpmc,wr-data-mux-bus-ns = <0>;
+				gpmc,wait-on-read = "true";
+				gpmc,wait-on-write = "true";
 
 				#address-cells = <1>;
 				#size-cells = <1>;
@@ -336,6 +345,9 @@
 
 };
 
+&elm {
+	status = "okay";
+};
 
 &cpsw_emac0 {
 	phy_id = <&davinci_mdio>, <4>;

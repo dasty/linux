@@ -458,6 +458,9 @@ config SND_SOC_PCM3008
 config SND_SOC_PCM3060
        tristate
 
+config SND_SOC_PCMDUMMY
+	tristate
+
 config SND_SOC_PCM512x
 	tristate
 

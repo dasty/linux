@@ -33,8 +33,8 @@
 
 		i2c2_pins: pinmux_i2c2_pins {
 			pinctrl-single,pins = <
-				0x178 0x23	/* I2C2_SDA */
-				0x17c 0x23	/* I2C2_SCL */
+				0x178 (PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_ctsn.i2c2_sda */
+				0x17c (PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_rtsn.i2c2_scl */
 			>;
 		};
 
@@ -63,17 +63,17 @@
 		};
 
 		audio_pins: pinmux_audio_pins {
-			pinctrl-single,pins = < /*  pin-name     -> function      (S800 name) */
-				0x1ac 0x20	/* MCASP0_AHCLKX -> MCASP0_AHCLKX (I2S_MCLK_OUT)- in */
-				0x190 0x00	/* MCASP0_ACLKX -> MCASP0_ACLKX  (I2S_BCLK_OUT) - out */
-				0x194 0x00	/* MCASP0_FSX -> MCASP0_FSX 	 (I2S_WCLK_OUT) - out */
-				0x198 0x00	/* MCASP0_AXR0 -> MCASP0_AXR0    (I2S_DATA_OUT) - out */
-				0x1a8 0x20	/* MCASP0_AXR1 -> MCASP0_AXR1    (I2S_DATA_IN)  - in  */
-				0x1a0 0x23	/* MCASP0_ACLKR -> MCASP1_ACLKX  (internall SPDIF MCLK_IN)  - in  */
-				0x1a4 0x00	/* MCASP0_FSR   -> MCASP0_FSR    (I2S_WCLK_IN)  -out */
-				0x19c 0x20	/* MCASP0_AHCLKR -> MCASP0_AHCLKR (I2S_MCLK_IN  -in */
-				0x78  0x06	/* GPMC_BE1N ->  MCASP0_ACLKR    (I2S_BCLK_IN)   - out */
-				0x108 0x04	/* GMII1_COL -> MCASP1_AXR2      (SPDIF_OUT)     - out */
+			pinctrl-single,pins = <				/*  pin-name	-> function	(S800 name) */
+				0x1ac (PIN_INPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_AHCLKX-> MCASP0_AHCLKX(I2S_MCLK_OUT)	- in */
+				0x190 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_ACLKX	-> MCASP0_ACLKX	(I2S_BCLK_OUT)	- out */
+				0x194 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_FSX	-> MCASP0_FSX	(I2S_WCLK_OUT)	- out */
+				0x198 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_AXR0	-> MCASP0_AXR0	(I2S_DATA_OUT)	- out */
+				0x1a8 (PIN_INPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_AXR1 	-> MCASP0_AXR1	(I2S_DATA_IN)	- in  */
+				0x1a0 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* MCASP0_ACLKR	-> MCASP1_ACLKX	(internall SPDIF MCLK_IN) - in  */
+				0x1a4 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_FSR	-> MCASP0_FSR	(I2S_WCLK_IN)	- out */
+				0x19c (PIN_INPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_AHCLKR-> MCASP0_AHCLKR(I2S_MCLK_IN	- in */
+				0x78  (PIN_OUTPUT_PULLDOWN | MUX_MODE6)	/* GPMC_BE1N	-> MCASP0_ACLKR	(I2S_BCLK_IN)	- out */
+				0x108 (PIN_OUTPUT_PULLDOWN | MUX_MODE4)	/* GMII1_COL	-> MCASP1_AXR2	(SPDIF_OUT)	- out */
 			>;
 		};
 

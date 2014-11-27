@@ -99,12 +99,59 @@
 	btwilink {
 		compatible = "btwilink";
 	};
+
+	audio {
+		compatible = "sue,am33xx-generic-audio";
+		pinctrl-names = "default";
+		pinctrl-0 = <&audio_pins>;
+		sue,card-name = "Stream Audio";
+		/*sue,invert-wclk;*/
+		/*sue,early-mclk;*/ /* enables MCLK before pcm3060 initialization */
+		clocks = <&si5351a 0>, <&si5351a 2>; /* playback clk, receive clk */
+
+		links {
+			link@0 {
+				sue,name = "analog";
+				sue,stream-name = "I2S";
+
+				sue,platform = <&mcasp0>;
+				sue,cpu-dai-name = "48038000.mcasp";
+				sue,codec = <&pcm_dummy>;
+				sue,codec-dai-name = "Dummy PCM Codec";
+				sue,mute-amp-pin = <&gpio1 13 0>;
+			};
+/*
+			link@1 {
+				sue,name = "digital";
+				sue,stream-name = "I2S";
+
+				sue,platform = <&mcasp0>;
+				sue,cpu-dai-name = "48038000.mcasp";
+
+				sue,codec = <&ak4104>;
+				sue,codec-dai-name = "ak4104-hifi";
+			};
+*/
+		};
+	};
+
+	/* 25MHz output from quartz next to SI5351a */
+	ref25: ref25M {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25000000>;
+	};
+
+	/* dummy pcm codec */
+	pcm_dummy: pcm_dummy {
+		compatible = "sue,pcm_dummy";
+	};
 };
 
 &am33xx_pinmux {
 	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&clkout2_pin &mmc2_pins &wlan_pins &uart4_pins_default>;
-	pinctrl-1 = <&clkout2_pin &mmc2_pins_sleep &wlan_pins_sleep &uart4_pins_sleep>;
+	pinctrl-0 = <&mmc2_pins &wlan_pins &uart4_pins_default>;
+	pinctrl-1 = <&mmc2_pins_sleep &wlan_pins_sleep &uart4_pins_sleep>;
 
 	user_leds_s0: user_leds_s0 {
 		pinctrl-single,pins = <
@@ -119,6 +166,13 @@
 		pinctrl-single,pins = <
 			0x188 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_sda.i2c0_sda */
 			0x18c (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_scl.i2c0_scl */
+		>;
+	};
+
+	i2c2_pins: pinmux_i2c2_pins {
+		pinctrl-single,pins = <
+			0x178 (PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_ctsn.i2c2_sda */
+			0x17c (PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_rtsn.i2c2_scl */
 		>;
 	};
 
@@ -144,12 +198,6 @@
 			0xD4 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* lcd_data13.uart4_rts */
 			0x70 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* gpmc_wait0.uart4_rxd */
 			0x74 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* gpmc_wpn.uart4_txd */
-		>;
-	};
-
-	clkout2_pin: pinmux_clkout2_pin {
-		pinctrl-single,pins = <
-			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
 		>;
 	};
 
@@ -255,6 +303,21 @@
 		>;
 	};
 
+	audio_pins: pinmux_audio_pins {
+		pinctrl-single,pins = < /*  pin-name     -> function      (S800 name) */
+			0x6c (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* conf_gpmc_a11.gpio1_27 HDMI clock disable node */
+			0x9c (PIN_INPUT | MUX_MODE7)		/* conf_gpmc_ben0_cle.gpio2_5 needs to be disabled */
+			0x108 (PIN_OUTPUT_PULLDOWN | MUX_MODE4)	/* GMII1_COL -> MCASP1_AXR2      (SPDIF_OUT)     - out */
+			0x1b4 (PIN_INPUT | MUX_MODE2)		/* xdma_event_intr1.tclkin */
+			0x190 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_ACLKX -> MCASP0_ACLKX		(I2S_BCLK_OUT) - out */
+			0x194 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_FSX -> MCASP0_FSX		(I2S_WCLK_OUT) - out */
+			0x198 (PIN_INPUT | MUX_MODE0)		/* MCASP0_AXR0 -> MCASP0_AXR0		(I2S_DATA_IN) - in */
+			0x19c (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* MCASP0_AHCLKR -> MCASP0_AXR2 (I2S_DATA_OUT) -out */
+			0x1a8 (PIN_INPUT | MUX_MODE7)		/* MCASP0_AXR1 -> GPIO3_20 */
+			0x1ac (PIN_INPUT_PULLDOWN | MUX_MODE0)	/* MCASP0_AHCLKX -> MCASP0_AHCLKX	(I2S_MCLK_OUT)- in */
+		>;
+	};
+
 };
 
 &uart0 {
@@ -314,6 +377,66 @@
 	};
 
 };
+
+&i2c2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins>;
+
+	status = "okay";
+	clock-frequency = <100000>;
+
+	/* Si5351a i2c clock generator */
+	si5351a: clock-generator@60 {
+		compatible = "silabs,si5351a";
+		reg = <0x60>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		#clock-cells = <1>;
+
+		/* connect xtal input to 25MHz reference */
+		clocks = <&ref25>;
+
+		/* connect xtal input as source of pll0 and pll1 */
+		silabs,pll-source = <0 0>, <1 0>;
+
+		/*
+		 * overwrite clkout0 configuration with:
+		 * - 8mA output drive strength
+		 * - pll0 as clock source of multisynth0
+		 * - multisynth0 as clock source of output divider
+		 * - multisynth0 can change pll0
+		 */
+		clkout0 {
+			reg = <0>;
+			silabs,drive-strength = <8>;
+			silabs,multisynth-source = <0>;
+			silabs,clock-source = <0>;
+			silabs,pll-master;
+		};
+	};
+};
+
+
+&mcasp0 {
+	status = "okay";
+	op-mode = <0>;          /* MCASP_IIS_MODE */
+	tdm-slots = <2>;        /*I2S = 2 channles, other: TDM */
+	num-serializer = <4>;   /*num of serializers*/
+	serial-dir = <  0 2 1 0 >; /* 0: INACTIVE, 1: TX, 2: RX */
+	tx-num-evt = <2>;       /*tx FIFO buffer lenght */
+	rx-num-evt = <1>;       /*rx FIFO buffer lenght */
+};
+
+&mcasp1 {
+	status = "okay";
+	op-mode = <1>;          /* MCASP_DIT_MODE */
+	tdm-slots = <2>;
+	num-serializer = <4>;
+	serial-dir = <  0 0 1 0 >;/* 0: INACTIVE, 1: TX, 2: RX */
+	tx-num-evt = <1>;
+	rx-num-evt = <0>;
+};
+
 
 /include/ "tps65217.dtsi"
 

@@ -23,6 +23,8 @@
 
 #include <linux/gfp.h>
 #include <linux/sched.h>
+#include <linux/gpio.h>
+#include <linux/time.h>
 
 #include "wlcore.h"
 #include "debug.h"
@@ -123,6 +125,7 @@ static int wl1271_rx_handle_data(struct wl1271 *wl, u8 *data, u32 length,
 	u8 is_data = 0;
 	u8 reserved = 0, offset_to_data = 0;
 	u16 seq_num;
+	static u16 seq_num_prev;
 	u32 pkt_data_len;
 
 	/*
@@ -200,6 +203,24 @@ static int wl1271_rx_handle_data(struct wl1271 *wl, u8 *data, u32 length,
 	wlcore_hw_set_rx_csum(wl, desc, skb);
 
 	seq_num = (le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
+
+	if (beacon && (seq_num % 10 == 0)) {
+		struct timespec ts;
+
+		getnstimeofday(&ts);
+		// HOPE: no interrupt happens here
+		gpio_set_value(66, 1);
+		udelay(1);
+		gpio_set_value(66, 0);
+
+		printk("RADEK timestamp=%d seq=%d sec=%ld nsec=%ld\n", desc->timestamp, seq_num, ts.tv_sec, ts.tv_nsec);
+	}
+
+	if (seq_num_prev + 1 != seq_num)
+		printk("RADEK MISSED BEACON timestamp=%d seq_num_prev=%d seq=%d !!!\n", desc->timestamp, seq_num_prev, seq_num);
+
+	seq_num_prev = seq_num;
+
 	wl1271_debug(DEBUG_RX, "rx skb 0x%p: %d B %s seq %d hlid %d", skb,
 		     skb->len - desc->pad_len,
 		     beacon ? "beacon" : "",

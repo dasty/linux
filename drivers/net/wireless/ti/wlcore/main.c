@@ -27,6 +27,7 @@
 #include <linux/vmalloc.h>
 #include <linux/wl12xx.h>
 #include <linux/interrupt.h>
+#include <linux/gpio.h>
 
 #include "wlcore.h"
 #include "debug.h"
@@ -6123,6 +6124,9 @@ static int wl1271_init_ieee80211(struct wl1271 *wl)
 		WLAN_CIPHER_SUITE_CCMP,
 		WL1271_CIPHER_SUITE_GEM,
 	};
+
+	gpio_request_one(66, GPIOF_DIR_OUT, "audio_sync");
+	printk("RADEK: gpio requested\n");
 
 	/* The tx descriptor buffer */
 	wl->hw->extra_tx_headroom = sizeof(struct wl1271_tx_hw_descr);

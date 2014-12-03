@@ -26,6 +26,9 @@
 #include <linux/of.h>
 #include <linux/of_platform.h>
 #include <linux/of_device.h>
+#include <linux/hrtimer.h>
+#include <linux/ktime.h>
+
 
 #include <sound/asoundef.h>
 #include <sound/core.h>
@@ -220,15 +223,33 @@ static void mcasp_start_tx(struct davinci_mcasp *mcasp)
 	mcasp_set_bits(mcasp, DAVINCI_MCASP_EVTCTLX_REG, XUNDRN);
 }
 
+struct davinci_mcasp *m_mcasp;
+int m_stream;
+bool m_should_start;
+
 static void davinci_mcasp_start(struct davinci_mcasp *mcasp, int stream)
 {
-	mcasp->streams++;
-
-	if (stream == SNDRV_PCM_STREAM_PLAYBACK)
-		mcasp_start_tx(mcasp);
-	else
-		mcasp_start_rx(mcasp);
+	m_mcasp = mcasp;
+	m_stream = stream;
+	m_should_start = true;
 }
+
+enum hrtimer_restart timer_davinci_mcasp_start(struct hrtimer *timer)
+{
+	if (!m_should_start)
+		return HRTIMER_NORESTART;
+	m_should_start = false;
+
+	m_mcasp->streams++;
+
+	if (m_stream == SNDRV_PCM_STREAM_PLAYBACK)
+		mcasp_start_tx(m_mcasp);
+	else
+		mcasp_start_rx(m_mcasp);
+
+	return HRTIMER_NORESTART;
+}
+EXPORT_SYMBOL_GPL(timer_davinci_mcasp_start);
 
 static void mcasp_stop_rx(struct davinci_mcasp *mcasp)
 {

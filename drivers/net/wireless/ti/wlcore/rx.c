@@ -114,6 +114,10 @@ static void wl1271_rx_status(struct wl1271 *wl,
 						status->band);
 }
 
+
+ktime_t audio_sync_gpio_ktime;
+__le32 audio_sync_beacon_timestamp;
+
 static int wl1271_rx_handle_data(struct wl1271 *wl, u8 *data, u32 length,
 				 enum wl_rx_buf_align rx_align, u8 *hlid)
 {
@@ -205,15 +209,14 @@ static int wl1271_rx_handle_data(struct wl1271 *wl, u8 *data, u32 length,
 	seq_num = (le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
 
 	if (beacon && (seq_num % 10 == 0)) {
-		struct timespec ts;
-
-		getnstimeofday(&ts);
+		audio_sync_gpio_ktime = ktime_get();
 		// HOPE: no interrupt happens here
 		gpio_set_value(66, 1);
 		udelay(1);
 		gpio_set_value(66, 0);
 
-		printk("RADEK timestamp=%d seq=%d sec=%ld nsec=%ld\n", desc->timestamp, seq_num, ts.tv_sec, ts.tv_nsec);
+		audio_sync_beacon_timestamp = desc->timestamp;
+		printk("RADEK timestamp=%d seq=%d\n", desc->timestamp, seq_num);
 	}
 
 	if (seq_num_prev + 1 != seq_num)

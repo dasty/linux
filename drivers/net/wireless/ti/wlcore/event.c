@@ -28,6 +28,8 @@
 #include "ps.h"
 #include "scan.h"
 #include "wl12xx_80211.h"
+#include <linux/hrtimer.h>
+#include <linux/ktime.h>
 
 void wlcore_event_rssi_trigger(struct wl1271 *wl, s8 *metric_arr)
 {
@@ -209,10 +211,20 @@ void wlcore_event_max_tx_failure(struct wl1271 *wl, unsigned long sta_bitmap)
 }
 EXPORT_SYMBOL_GPL(wlcore_event_max_tx_failure);
 
+extern ktime_t audio_sync_gpio_ktime;
+extern __le32 audio_sync_beacon_timestamp;
+extern struct hrtimer audio_sync_hrtimer;
+
 void wlcore_event_clock_sync(struct wl1271 *wl, u32 clock)
 {
-    wl1271_info("AUDIO_SYNC_EVENT_ID");
-    wl1271_info("%d",clock);
+	ktime_t ktime;
+
+	wl1271_info("RADEK AUDIO_SYNC_EVENT_ID gpio=%d beacon=%d\n", clock, audio_sync_beacon_timestamp);
+
+	// schedule hr timer 50ms after arrival of the beacon to WiLink8
+	ktime =  ktime_add_ns(audio_sync_gpio_ktime, 1000*(50000-(clock-audio_sync_beacon_timestamp)));
+
+	hrtimer_start(&audio_sync_hrtimer, ktime, HRTIMER_MODE_ABS);
 }
 EXPORT_SYMBOL_GPL(wlcore_event_clock_sync);
 

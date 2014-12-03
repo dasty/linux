@@ -28,6 +28,8 @@
 #include <linux/wl12xx.h>
 #include <linux/interrupt.h>
 #include <linux/gpio.h>
+#include <linux/hrtimer.h>
+#include <linux/ktime.h>
 
 #include "wlcore.h"
 #include "debug.h"
@@ -6114,6 +6116,16 @@ static void wl1271_unregister_hw(struct wl1271 *wl)
 
 }
 
+struct hrtimer audio_sync_hrtimer;
+enum hrtimer_restart audio_sync_hrtimer_callback( struct hrtimer *timer )
+{
+	gpio_set_value(69, 1);
+	udelay(1);
+	gpio_set_value(69, 0);
+	printk( "RADEK HRTIMER FIRED (%ld).\n", jiffies );
+	return HRTIMER_NORESTART;
+}
+
 static int wl1271_init_ieee80211(struct wl1271 *wl)
 {
 	int i;
@@ -6126,7 +6138,11 @@ static int wl1271_init_ieee80211(struct wl1271 *wl)
 	};
 
 	gpio_request_one(66, GPIOF_DIR_OUT, "audio_sync");
-	printk("RADEK: gpio requested\n");
+	gpio_request_one(69, GPIOF_DIR_OUT, "audio_trig");
+	printk("RADEK: gpios requested\n");
+
+	hrtimer_init(&audio_sync_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
+	audio_sync_hrtimer.function = &audio_sync_hrtimer_callback;
 
 	/* The tx descriptor buffer */
 	wl->hw->extra_tx_headroom = sizeof(struct wl1271_tx_hw_descr);

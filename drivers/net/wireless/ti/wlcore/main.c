@@ -6116,19 +6116,8 @@ static void wl1271_unregister_hw(struct wl1271 *wl)
 
 }
 
-ktime_t audio_sync_ktime_target;
 struct hrtimer audio_sync_hrtimer;
-enum hrtimer_restart audio_sync_hrtimer_callback( struct hrtimer *timer )
-{
-	while (ktime_compare(ktime_get(), audio_sync_ktime_target) < 0)
-		ndelay(100);
-
-	gpio_set_value(69, 1);
-	udelay(1);
-	gpio_set_value(69, 0);
-	printk( "RADEK HRTIMER FIRED (%ld).\n", jiffies );
-	return HRTIMER_NORESTART;
-}
+enum hrtimer_restart timer_davinci_mcasp_start(struct hrtimer *timer);
 
 static int wl1271_init_ieee80211(struct wl1271 *wl)
 {
@@ -6146,7 +6135,7 @@ static int wl1271_init_ieee80211(struct wl1271 *wl)
 	printk("RADEK: gpios requested\n");
 
 	hrtimer_init(&audio_sync_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
-	audio_sync_hrtimer.function = &audio_sync_hrtimer_callback;
+	audio_sync_hrtimer.function = &timer_davinci_mcasp_start;
 
 	/* The tx descriptor buffer */
 	wl->hw->extra_tx_headroom = sizeof(struct wl1271_tx_hw_descr);

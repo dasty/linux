@@ -226,6 +226,8 @@ static void mcasp_start_tx(struct davinci_mcasp *mcasp)
 struct davinci_mcasp *m_mcasp;
 int m_stream;
 bool m_should_start;
+ktime_t audio_sync_ktime_target;
+EXPORT_SYMBOL_GPL(audio_sync_ktime_target);
 
 static void davinci_mcasp_start(struct davinci_mcasp *mcasp, int stream)
 {
@@ -239,6 +241,9 @@ enum hrtimer_restart timer_davinci_mcasp_start(struct hrtimer *timer)
 	if (!m_should_start)
 		return HRTIMER_NORESTART;
 	m_should_start = false;
+
+	while (ktime_compare(ktime_get(), audio_sync_ktime_target) < 0)
+		ndelay(100);
 
 	m_mcasp->streams++;
 

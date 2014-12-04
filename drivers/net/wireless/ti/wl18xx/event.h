@@ -76,7 +76,7 @@ struct wl18xx_event_mailbox {
 	__le16 bss_loss_bitmap;
 
 	/* bitmap of stations (by HLID) which exceeded max tx retries */
-	/*__le32 tx_retry_exceeded_bitmap;*/
+	__le32 tx_retry_exceeded_bitmap;
 
 	/* bitmap of inactive stations (by HLID) */
 	__le32 inactive_sta_bitmap;

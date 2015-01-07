@@ -538,7 +538,7 @@ static int cs4271_codec_probe(struct snd_soc_codec *codec)
 {
 	struct cs4271_private *cs4271 = snd_soc_codec_get_drvdata(codec);
 	struct cs4271_platform_data *cs4271plat = codec->dev->platform_data;
-	int ret;
+	int ret, i;
 	bool amutec_eq_bmutec = false;
 
 #ifdef CONFIG_OF
@@ -566,6 +566,12 @@ static int cs4271_codec_probe(struct snd_soc_codec *codec)
 		/* Give the codec time to wake up */
 		udelay(1);
 	}
+
+	// Hack. There should be a better way to do that (?) but without
+	// after reloading the machine driver, we have a lot of noise and distortion on the output, 
+	// while playing. This sets the default values on reload.
+	for (i=0; i<sizeof(cs4271_reg_defaults)/sizeof(struct reg_default); i++)
+		regmap_write(cs4271->regmap, cs4271_reg_defaults[i].reg, cs4271_reg_defaults[i].def); 
 
 	ret = regmap_update_bits(cs4271->regmap, CS4271_MODE2,
 				 CS4271_MODE2_PDN | CS4271_MODE2_CPEN,

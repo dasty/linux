@@ -1075,10 +1075,6 @@ static int si5351_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
 				rdiv << SI5351_OUTPUT_CLK_DIV_SHIFT);
 	}
 
-	/* powerup clkout */
-	si5351_set_bits(hwdata->drvdata, SI5351_CLK0_CTRL + hwdata->num,
-			SI5351_CLK_POWERDOWN, 0);
-
 	dev_dbg(&hwdata->drvdata->client->dev,
 		"%s - %s: rdiv = %u, parent_rate = %lu, rate = %lu\n",
 		__func__, __clk_get_name(hwdata->hw.clk), (1 << rdiv),
@@ -1391,10 +1387,6 @@ static int si5351_i2c_probe(struct i2c_client *client,
 				n, pdata->clkout[n].disable_state);
 			return ret;
 		}
-
-		/* hack! */
-		si5351_set_bits(drvdata, SI5351_CLK0_CTRL + n,
-				SI5351_CLK_POWERDOWN, 0);
 	}
 
 	/* Enable fanout of MS0 and MS4 to all output multiplexers */

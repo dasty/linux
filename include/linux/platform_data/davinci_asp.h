@@ -86,6 +86,7 @@ struct davinci_mcasp_pdata {
 	u8 rxnumevt;
 	int tx_dma_channel;
 	int rx_dma_channel;
+	u8 tx_rx_clk_separate;
 };
 /* TODO: Fix arch/arm/mach-davinci/ users and remove this define */
 #define snd_platform_data davinci_mcasp_pdata

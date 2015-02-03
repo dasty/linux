@@ -93,6 +93,8 @@ struct davinci_mcasp {
 	u8	rxnumevt;
 	u8	tx_rx_clk_separate;
 
+	u8	tx_lrclk_always;
+
 	bool	dat_port;
 
 	/* Used for comstraint setting on the second stream */
@@ -278,6 +280,9 @@ static void mcasp_stop_tx(struct davinci_mcasp *mcasp)
 		val =  TXHCLKRST | TXCLKRST | TXFSRST;
 
 	val |= TXCLKRST;
+
+	if (mcasp->tx_lrclk_always)
+		val |= TXFSRST;
 
 	mcasp_set_reg(mcasp, DAVINCI_MCASP_GBLCTLX_REG, val);
 	mcasp_set_reg(mcasp, DAVINCI_MCASP_TXSTAT_REG, 0xFFFFFFFF);
@@ -1446,6 +1451,9 @@ static struct davinci_mcasp_pdata *davinci_mcasp_set_pdata_from_of(
 	if (of_find_property(np, "tx-rx-clk-separate", NULL))
 		pdata->tx_rx_clk_separate = 1;
 
+	if (of_find_property(np, "tx-lrclk-always", NULL))
+		pdata->tx_lrclk_always = 1;
+
 	return  pdata;
 
 nodata:
@@ -1545,6 +1553,7 @@ static int davinci_mcasp_probe(struct platform_device *pdev)
 	mcasp->txnumevt = pdata->txnumevt;
 	mcasp->rxnumevt = pdata->rxnumevt;
 	mcasp->tx_rx_clk_separate = pdata->tx_rx_clk_separate;
+	mcasp->tx_lrclk_always = pdata->tx_lrclk_always;
 
 	mcasp->dev = &pdev->dev;
 

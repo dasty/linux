@@ -140,7 +140,7 @@ static int am33xx_s800_common_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
-	struct snd_soc_card *card = codec_dai->card;
+	struct snd_soc_card *card = codec_dai->component->card;
 	struct snd_soc_am33xx_s800 *priv = snd_soc_card_get_drvdata(card);
 	unsigned int clk, rate = params_rate(params);
 	unsigned int bclk_div = is_spdif ? 4 : 2;
@@ -189,7 +189,7 @@ static int am33xx_s800_common_hw_free(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
-	struct snd_soc_card *card = codec_dai->card;
+	struct snd_soc_card *card = codec_dai->component->card;
 	struct snd_soc_am33xx_s800 *priv = snd_soc_card_get_drvdata(card);
 
 	priv->mclk_rate = 0;

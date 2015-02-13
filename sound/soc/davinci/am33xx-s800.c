@@ -40,8 +40,6 @@ struct snd_soc_am33xx_s800 {
 	int			passive_mode_gpio;
 	int			amp_overheat_gpio;
 	int			amp_overcurrent_gpio;
-	int			amp_reset_gpio;
-	int			amp_reset_delay_ms;
 	struct snd_kcontrol	*amp_overheat_kctl;
 	struct regulator	*regulator;
 };
@@ -614,37 +612,13 @@ static int snd_soc_am33xx_s800_probe(struct platform_device *pdev)
 		}
 	}
 
-	priv->amp_reset_gpio = of_get_named_gpio(top_node, "sue,amp-reset-gpio", 0);
-	if (gpio_is_valid(priv->amp_reset_gpio)) {
-		ret = devm_gpio_request_one(dev, priv->amp_reset_gpio,
-					    GPIOF_OUT_INIT_HIGH,
-					    "Audio Amplifier Reset");
-		if (ret < 0)
-			priv->amp_reset_gpio = -EINVAL;
-
-		of_property_read_u32(top_node, "sue,amp-reset-delay-ms",
-				     &priv->amp_reset_delay_ms);
-	}
-
 	return 0;
-}
-
-static void snd_soc_am33xx_s800_shutdown_amp(struct device *dev,
-					     struct snd_soc_am33xx_s800 *priv)
-{
-	pinctrl_pm_select_sleep_state(dev);
-
-	if (gpio_is_valid(priv->amp_reset_gpio)) {
-		gpio_set_value(priv->amp_reset_gpio, 0);
-		msleep(priv->amp_reset_delay_ms);
-	}
 }
 
 static int snd_soc_am33xx_s800_remove(struct platform_device *pdev)
 {
 	struct snd_soc_am33xx_s800 *priv = platform_get_drvdata(pdev);
 
-	snd_soc_am33xx_s800_shutdown_amp(&pdev->dev, priv);
 	snd_soc_unregister_card(&priv->card);
 	regulator_disable(priv->regulator);
 
@@ -656,7 +630,7 @@ static int snd_soc_am33xx_s800_suspend(struct device *dev)
         struct snd_soc_card *card = dev_get_drvdata(dev);
 	struct snd_soc_am33xx_s800 *priv = snd_soc_card_get_drvdata(card);
 
-	snd_soc_am33xx_s800_shutdown_amp(dev, priv);
+	pinctrl_pm_select_sleep_state(dev);
 	regulator_disable(priv->regulator);
 
 	return snd_soc_suspend(dev);
@@ -664,9 +638,7 @@ static int snd_soc_am33xx_s800_suspend(struct device *dev)
 
 static void snd_soc_am33xx_s800_shutdown(struct platform_device *pdev)
 {
-	struct snd_soc_am33xx_s800 *priv = platform_get_drvdata(pdev);
-
-	snd_soc_am33xx_s800_shutdown_amp(&pdev->dev, priv);
+	pinctrl_pm_select_sleep_state(&pdev->dev);
 }
 
 static int snd_soc_am33xx_s800_resume(struct device *dev)
@@ -680,9 +652,6 @@ static int snd_soc_am33xx_s800_resume(struct device *dev)
 		dev_err(dev, "unable to enable regulator: %d\n", ret);
 		return ret;
 	}
-
-	if (gpio_is_valid(priv->amp_reset_gpio))
-		gpio_set_value(priv->amp_reset_gpio, 1);
 
 	pinctrl_pm_select_default_state(dev);
 

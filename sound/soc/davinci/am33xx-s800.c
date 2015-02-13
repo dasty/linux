@@ -38,6 +38,7 @@ struct snd_soc_am33xx_s800 {
 	unsigned int		mclk_rate_rx;
 	signed int		drift;
 	int			passive_mode_gpio;
+	int			cb_reset_gpio;
 	int			amp_overheat_gpio;
 	int			amp_overcurrent_gpio;
 	struct snd_kcontrol	*amp_overheat_kctl;
@@ -521,6 +522,20 @@ static int snd_soc_am33xx_s800_probe(struct platform_device *pdev)
 
 		priv->mclk_rate = MCLK_48k;
 		am33xx_s800_set_mclk(priv, SNDRV_PCM_STREAM_PLAYBACK);
+	}
+
+	priv->cb_reset_gpio = of_get_named_gpio(top_node, "sue,cb-reset-gpio", 0);
+	if (gpio_is_valid(priv->cb_reset_gpio)) {
+		ret = devm_gpio_request_one(dev, priv->cb_reset_gpio, GPIOF_OUT_INIT_LOW, "Carrier board reset GPIO");
+
+		if (ret == 0) {
+			usleep_range(1000, 5000);
+			gpio_set_value(priv->cb_reset_gpio, 1);
+			usleep_range(1000, 5000);
+		}
+
+		if (ret < 0)
+			priv->cb_reset_gpio = -EINVAL;
 	}
 
 	ret = snd_soc_register_card(&priv->card);

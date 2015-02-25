@@ -515,6 +515,14 @@ config VEXPRESS_SYSCFG
 	  bus. System Configuration interface is one of the possible means
 	  of generating transactions on this bus.
 
+config MRVL_INIT
+	bool "Marvell clock and  gpio init platform driver."
+	default	n
+	help
+	  This option enables MRVL init driver to enable clocks and gpio pin.
+
+	  If unsure, say N.
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"

@@ -407,12 +407,7 @@ static int snd_soc_am33xx_s800_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
-	dai_fmt = SND_SOC_DAIFMT_I2S;
-
-	if (of_get_property(top_node, "sue,invert-wclk", NULL))
-		dai_fmt |= SND_SOC_DAIFMT_NB_IF;
-	else
-		dai_fmt |= SND_SOC_DAIFMT_NB_NF;
+	dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF;
 
 	/* request pin mux */
 	pinctrl = devm_pinctrl_get_select_default(dev);
